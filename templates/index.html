@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
+
+<title>Smart Parking • Live</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #07111f;
+    color: white;
+    min-height: 100vh;
+}
+
+.container {
+    width: 92%;
+    max-width: 1100px;
+    margin: auto;
+    padding: 30px 0;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 45px;
+}
+
+.logo {
+    font-size: 15px;
+    font-weight: bold;
+    color: #6ee7b7;
+    letter-spacing: 1px;
+}
+
+.live {
+    background: #0f2d2a;
+    color: #6ee7b7;
+    border: 1px solid #1d5b4f;
+    padding: 7px 13px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero h1 {
+    font-size: clamp(38px, 6vw, 65px);
+    line-height: 1;
+    margin-bottom: 18px;
+    letter-spacing: -2px;
+}
+
+.hero p {
+    color: #94a3b8;
+    font-size: 17px;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+
+/* =========================
+   SUMMARY
+========================= */
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.summary-card {
+    background: #0c1a2b;
+    border: 1px solid #172b42;
+    border-radius: 18px;
+    padding: 22px;
+}
+
+.summary-card .label {
+    color: #718096;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.summary-card .number {
+    font-size: 34px;
+    font-weight: bold;
+}
+
+.available-number {
+    color: #6ee7b7;
+}
+
+.occupied-number {
+    color: #fb7185;
+}
+
+.online {
+    color: #6ee7b7;
+    font-size: 17px;
+}
+
+
+/* =========================
+   PARKING
+========================= */
+
+.parking-title {
+    margin: 50px 0 20px;
+    font-size: 18px;
+}
+
+.parking-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.slot {
+    border-radius: 20px;
+    padding: 24px;
+    min-height: 190px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    border: 1px solid;
+}
+
+.slot.available {
+    background: #08251f;
+    border-color: #145c4c;
+}
+
+.slot.occupied {
+    background: #28131a;
+    border-color: #6d2536;
+}
+
+.slot-number {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.car {
+    font-size: 45px;
+}
+
+.slot-status {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.available .slot-status {
+    color: #6ee7b7;
+}
+
+.occupied .slot-status {
+    color: #fb7185;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+    margin-top: 45px;
+    padding-top: 20px;
+
+    border-top: 1px solid #172b42;
+
+    display: flex;
+    justify-content: space-between;
+
+    color: #64748b;
+    font-size: 12px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 750px) {
+
+    .summary {
+        grid-template-columns: 1fr;
+    }
+
+    .parking-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero h1 {
+        font-size: 42px;
+    }
+
+    .footer {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+}
+
+
+@media (max-width: 450px) {
+
+    .parking-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- =========================
+     HEADER
+========================= -->
+
+<div class="top">
+
+```
+<div class="logo">
+    SMART PARKING • LIVE
+</div>
+
+<div
+    class="live"
+    id="liveStatus"
+>
+    ● CONNECTING
+</div>
+```
+
+</div>
+
+<!-- =========================
+     HERO
+========================= -->
+
+<section class="hero">
+
+```
+<h1>
+    Find your<br>
+    parking slot.
+</h1>
+
+<p>
+    Scan the QR code to check availability before entering.
+</p>
+```
+
+</section>
+
+<!-- =========================
+     SUMMARY
+========================= -->
+
+<section class="summary">
+
+```
+<!-- AVAILABLE -->
+
+<div class="summary-card">
+
+    <div class="label">
+        AVAILABLE SLOTS
+    </div>
+
+    <div
+        class="number available-number"
+        id="available"
+    >
+        0 / 4
+    </div>
+
+</div>
+
+
+<!-- OCCUPIED -->
+
+<div class="summary-card">
+
+    <div class="label">
+        OCCUPIED
+    </div>
+
+    <div
+        class="number occupied-number"
+        id="occupied"
+    >
+        0
+    </div>
+
+</div>
+
+
+<!-- SYSTEM -->
+
+<div class="summary-card">
+
+    <div class="label">
+        SYSTEM
+    </div>
+
+    <div
+        class="online"
+        id="system"
+    >
+        ● Connecting...
+    </div>
+
+</div>
+```
+
+</section>
+
+<!-- =========================
+     PARKING
+========================= -->
+
+<h2 class="parking-title">
+    Parking availability
+</h2>
+
+<section
+    class="parking-grid"
+    id="parkingGrid"
+>
+
+</section>
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<div class="footer">
+
+```
+<div id="state">
+    Parking state: ----
+</div>
+
+<div id="updated">
+    Last update: Waiting...
+</div>
+```
+
+</div>
+
+</div>
+
+<script>
+
+
+// ====================================================
+// GET PARKING DATA FROM RENDER
+// ====================================================
+
+async function updateParking() {
+
+    try {
+
+        const response =
+            await fetch("/value");
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Server error"
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        // ----------------------------------------------
+        // GET SLOT DATA
+        // ----------------------------------------------
+
+        const slots =
+            data.slots;
+
+
+        // ----------------------------------------------
+        // COUNT OCCUPIED
+        // ----------------------------------------------
+
+        let occupied = 0;
+
+
+        slots.forEach(
+            function(slot) {
+
+                if (slot == 1) {
+
+                    occupied++;
+
+                }
+
+            }
+        );
+
+
+        // ----------------------------------------------
+        // COUNT AVAILABLE
+        // ----------------------------------------------
+
+        const available =
+            slots.length - occupied;
+
+
+        // ----------------------------------------------
+        // UPDATE SUMMARY
+        // ----------------------------------------------
+
+        document.getElementById(
+            "available"
+        ).innerText =
+            available + " / " + slots.length;
+
+
+        document.getElementById(
+            "occupied"
+        ).innerText =
+            occupied;
+
+
+        // ----------------------------------------------
+        // CREATE PARKING CARDS
+        // ----------------------------------------------
+
+        const grid =
+            document.getElementById(
+                "parkingGrid"
+            );
+
+
+        grid.innerHTML = "";
+
+
+        slots.forEach(
+            function(slot, index) {
+
+
+                const isOccupied =
+                    slot == 1;
+
+
+                const card =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                // Set card style
+
+                if (isOccupied) {
+
+                    card.className =
+                        "slot occupied";
+
+                }
+                else {
+
+                    card.className =
+                        "slot available";
+
+                }
+
+
+                // Set card contents
+
+                card.innerHTML = `
+
+                    <div class="slot-number">
+                        P${index + 1}
+                    </div>
+
+                    <div class="car">
+                        ${isOccupied ? "🚗" : "🅿️"}
+                    </div>
+
+                    <div class="slot-status">
+                        ${isOccupied
+                            ? "OCCUPIED"
+                            : "AVAILABLE"}
+                    </div>
+
+                `;
+
+
+                grid.appendChild(
+                    card
+                );
+
+            }
+        );
+
+
+        // ----------------------------------------------
+        // ESP32 ONLINE STATUS
+        // ----------------------------------------------
+
+        const liveStatus =
+            document.getElementById(
+                "liveStatus"
+            );
+
+
+        const system =
+            document.getElementById(
+                "system"
+            );
+
+
+        if (data.online) {
+
+            liveStatus.innerText =
+                "● LIVE";
+
+            system.innerText =
+                "● ESP32 Online";
+
+        }
+        else {
+
+            liveStatus.innerText =
+                "● OFFLINE";
+
+            system.innerText =
+                "● ESP32 Offline";
+
+        }
+
+
+        // ----------------------------------------------
+        // PARKING STATE
+        // ----------------------------------------------
+
+        const state =
+            slots
+                .map(
+                    function(slot) {
+
+                        return slot == 1
+                            ? "1"
+                            : "0";
+
+                    }
+                )
+                .join("");
+
+
+        document.getElementById(
+            "state"
+        ).innerText =
+            "Parking state: " + state;
+
+
+        // ----------------------------------------------
+        // LAST UPDATE
+        // ----------------------------------------------
+
+        if (
+            data.lastSeen &&
+            data.lastSeen > 0
+        ) {
+
+            const date =
+                new Date(
+                    data.lastSeen * 1000
+                );
+
+
+            document.getElementById(
+                "updated"
+            ).innerText =
+                "Last update: " +
+                date.toLocaleTimeString();
+
+        }
+        else {
+
+            document.getElementById(
+                "updated"
+            ).innerText =
+                "Last update: Waiting...";
+
+        }
+
+    }
+
+
+    catch(error) {
+
+        console.log(
+            "Error:",
+            error
+        );
+
+
+        document.getElementById(
+            "liveStatus"
+        ).innerText =
+            "● OFFLINE";
+
+
+        document.getElementById(
+            "system"
+        ).innerText =
+            "● Server unavailable";
+
+    }
+
+}
+
+
+// ====================================================
+// START
+// ====================================================
+
+updateParking();
+
+
+// ====================================================
+// UPDATE EVERY 2 SECONDS
+// ====================================================
+
+setInterval(
+    updateParking,
+    2000
+);
+
+
+</script>
+
+</body>
+
+</html>
